@@ -1,18 +1,17 @@
 from flask import Flask, request
-import aiohttp
+from stackmng.crawler import Crawler
 
-
+crl = Crawler(max_depth=2)
 app = Flask(__name__)
+
 
 @app.route('/find_best_answer', methods=['POST'])
 async def find_best_answer():
     link = request.json['link']
+    links = []
+    for link in crl.walk():
+        links.append(link)
+        
     return {
-        'html': await fetch_html(link)
+        'links': links
     }
-
-async def fetch_html(link):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(link) as response:
-            res =  await response.text()
-            return res
