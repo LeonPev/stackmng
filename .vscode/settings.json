@@ -1,7 +1,15 @@
 {
     "python.testing.pytestArgs": [
+<<<<<<< HEAD
         "tests"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true
 }
+=======
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}
+>>>>>>> ba5ed1604d75adfeec940c0361d8fdab34a490ff
