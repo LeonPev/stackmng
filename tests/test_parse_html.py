@@ -2,7 +2,7 @@ import pytest
 from stackmng import parse_html
 
 def test_parse_html():
-    with open('tests/testdata/so.html', 'r') as f:
+    with open('tests/testdata/so.html', 'r', encoding='utf-8') as f:
         stack_overflow_resp = f.read()
     links = parse_html.get_question_links(stack_overflow_resp)
     assert links == [

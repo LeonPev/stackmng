@@ -9,7 +9,7 @@ import json
 def client():
     with app.test_client() as client:
         yield client
- 
+
 
 def so_handeler(request):
     filename = None
@@ -23,7 +23,7 @@ def so_handeler(request):
         filename = 'tests/testdata/q3.html'
 
     stack_overflow_resp = None
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding='utf-8') as f:
         stack_overflow_resp = f.read()
     return stack_overflow_resp
 
