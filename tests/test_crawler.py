@@ -98,10 +98,23 @@ def test_get_question_links():
     'https://stackoverflow.com/questions/70995419/how-to-mock-an-async-instance-method-of-a-patched-class/70995584#',
     ]
 
-# def test_get_answers():
-#     with open('tests/testdata/so.html', 'r', encoding='utf-8') as f:
-#         stack_overflow_resp = f.read()
-#     answers = get_answers(stack_overflow_resp)
-#     assert answers == [
-#         ""
-#     ]
+def test_get_answers():
+    with open('tests/testdata/so.html', 'r', encoding='utf-8') as f:
+        stack_overflow_resp = f.read()
+    crl = Crawler.create(
+        max_depth=3,
+        stackoverflow_url='https://stackoverflow.com')
+    answers = crl.get_answers(stack_overflow_resp)
+    assert len(answers) == 2
+    assert len(answers[0]) == 3307
+    assert len(answers[1]) == 331
+
+def test_get_answer_empty():
+    with open('tests/testdata/q1.html', 'r', encoding='utf-8') as f:
+        stack_overflow_resp = f.read()
+    crl = Crawler.create(
+        max_depth=3,
+        stackoverflow_url='https://stackoverflow.com')
+    answers = crl.get_answers(stack_overflow_resp)
+    assert len(answers) == 0
+    

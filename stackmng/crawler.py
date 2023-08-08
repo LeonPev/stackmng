@@ -42,10 +42,12 @@ class Crawler:
                 links.append(q_link)
         return links
 
-    def get_answers(html):
+    def get_answers(self, html):
         soup = BeautifulSoup(html, 'html.parser')
         answers = []
         for answer in soup.find_all('div', class_='s-prose js-post-body'):
-            answers.append(answer)
+            answers.append(str(answer))
+        if answers:
+            return answers[1:]
         return answers
 
