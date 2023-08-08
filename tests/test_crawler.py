@@ -40,7 +40,6 @@ async def test_crawler(httpserver: HTTPServer):
 
 
     print(list(lnk_html.keys()))
-
     assert 'title root' in lnk_html[so_url + '/root']
     assert 'title q1' in lnk_html[so_url + '/questions/q1']
     assert 'title q2' in lnk_html[so_url + '/questions/q2']
