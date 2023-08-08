@@ -3,7 +3,7 @@ import pytest
 from pytest_httpserver import HTTPServer
 import asyncio as aio
 import json
-from stackmng.crawler import Crawler, get_question_links
+from stackmng.crawler import Crawler, get_question_links, get_answers
 import stackmng.crawler as crawler
 
 
@@ -71,4 +71,12 @@ def test_get_question_links():
         crawler.stack_overflow_url + '/questions/17353100/get-images-from-wordpress-post-post-content',
         crawler.stack_overflow_url + '/questions/59280265/bulk-replace-missing-images-in-wordpress',
         crawler.stack_overflow_url + '/questions/16127152/how-to-create-resized-versions-of-images-programatically-uploaded-with-wp-insert',
+    ]
+
+def test_get_answers():
+    with open('tests/testdata/so.html', 'r', encoding='utf-8') as f:
+        stack_overflow_resp = f.read()
+    answers = get_answers(stack_overflow_resp)
+    assert answers == [
+        ""
     ]
