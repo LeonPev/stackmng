@@ -9,14 +9,17 @@ import stackmng.crawler as crawler
 
 def so_handeler(request):
     filename = None
-    if request.path == '/foobar/root':
-        filename = 'tests/testdata/root.html'
-    elif request.path == '/foobar/questions/q1':
-        filename = 'tests/testdata/q1.html'
-    elif request.path == '/foobar/questions/q2':
-        filename = 'tests/testdata/q2.html'
-    elif request.path == '/foobar/questions/q3':
-        filename = 'tests/testdata/q3.html'
+    paths_dict = {
+        '/foobar/root': 'tests/testdata/root.html',
+        '/foobar/questions/q1': 'tests/testdata/q1.html',
+        '/foobar/questions/q2': 'tests/testdata/q2.html',
+        '/foobar/questions/q3': 'tests/testdata/q3.html',
+        '/foobar/questions/q4': 'tests/testdata/q4.html',
+        '/foobar/questions/q5': 'tests/testdata/q5.html',
+        '/foobar/questions/q6': 'tests/testdata/q6.html'
+    }
+
+    filename = paths_dict.get(request.path)
 
     stack_overflow_resp = None
     with open(filename, 'r') as f:
@@ -29,56 +32,32 @@ async def test_crawler(httpserver: HTTPServer):
     httpserver.expect_request("/foobar/questions/q1").respond_with_handler(so_handeler)
     httpserver.expect_request("/foobar/questions/q2").respond_with_handler(so_handeler)
     httpserver.expect_request("/foobar/questions/q3").respond_with_handler(so_handeler)
+    httpserver.expect_request("/foobar/questions/q4").respond_with_handler(so_handeler)
+    httpserver.expect_request("/foobar/questions/q5").respond_with_handler(so_handeler)
+    httpserver.expect_request("/foobar/questions/q6").respond_with_handler(so_handeler)
     so_url = httpserver.url_for("/foobar")
     crawler.stack_overflow_url = so_url
-    crl = Crawler(max_depth=2)
+    crl = Crawler(max_depth=3)
 
-    lnk_html = {}
+    lnk_html = []
 
     async for link, html in crl.walk(so_url + '/root'):
-       lnk_html[link] = html
+       lnk_html.append((link, html))
 
-    expected = {
-    so_url + '/questions/q1': '<!DOCTYPE html>\n'
-                                                '\n'
-                                                '<html>\n'
-                                                '    <head>\n'
-                                                '        <title>Root</title>\n'
-                                                '    </head>\n'
-                                                '</html>',
-  so_url + '/foobar/questions/q2': '<!DOCTYPE html>\n'
-                                                '\n'
-                                                '<html>\n'
-                                                '    <head>\n'
-                                                '        <title>Root</title>\n'
-                                                '    </head>\n'
-                                                '    <a '
-                                                'href="/questions/q1">q1</a>\n'
-                                                '    <a '
-                                                'href="/questions/q3">q3</a>\n'
-                                                '</html>',
-  so_url + '/foobar/questions/q3': '<!DOCTYPE html>\n'
-                                                '\n'
-                                                '<html>\n'
-                                                '    <head>\n'
-                                                '        <title>Root</title>\n'
-                                                '    </head>\n'
-                                                '</html>',
-  so_url + '/foobar/root': '<!DOCTYPE html>\n'
-                                        '\n'
-                                        '<html>\n'
-                                        '    <head>\n'
-                                        '        <title>Root</title>\n'
-                                        '    </head>\n'
-                                        '    <a href="/questions/q1">q1</a>\n'
-                                        '    <a href="/questions/q2">q2</a>\n'
-                                        '</html>',
-}
-    assert lnk_html == expected
+    print(lnk_html)
+    assert len(lnk_html) == 6
 
+    lnk_html_dct = {link: html for link, html in lnk_html}
+
+    assert 'title root' in lnk_html_dct[so_url + '/root']
+    assert 'title q1' in lnk_html_dct[so_url + '/questions/q1']
+    assert 'title q2' in lnk_html_dct[so_url + '/questions/q2']
+    assert 'title q3' in lnk_html_dct[so_url + '/questions/q3']
+    assert 'title q4' in lnk_html_dct[so_url + '/questions/q4']
+    assert 'title q5' in lnk_html_dct[so_url + '/questions/q5']
 
 def test_get_question_links():
-    with open('tests/testdata/so.html', 'r') as f:
+    with open('tests/testdata/so.html', 'r', encoding='utf-8') as f:
         stack_overflow_resp = f.read()
     links = get_question_links(stack_overflow_resp)
     assert links == [
