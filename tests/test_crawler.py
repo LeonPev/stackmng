@@ -3,41 +3,43 @@ import pytest
 from pytest_httpserver import HTTPServer
 import asyncio as aio
 import json
-from stackmng.crawler import Crawler, get_question_links, get_answers
+from stackmng.crawler import Crawler
 import stackmng.crawler as crawler
 
+local_srv_url = ''
 
 def so_handeler(request):
     filename = None
     paths_dict = {
         '/foobar/root': 'tests/testdata/root.html',
-        '/foobar/questions/q1': 'tests/testdata/q1.html',
-        '/foobar/questions/q2': 'tests/testdata/q2.html',
-        '/foobar/questions/q3': 'tests/testdata/q3.html',
-        '/foobar/questions/q4': 'tests/testdata/q4.html',
-        '/foobar/questions/q5': 'tests/testdata/q5.html',
-        '/foobar/questions/q6': 'tests/testdata/q6.html'
+        '/foobar/questions/1': 'tests/testdata/q1.html',
+        '/foobar/questions/2': 'tests/testdata/q2.html',
+        '/foobar/questions/3': 'tests/testdata/q3.html',
+        '/foobar/questions/4': 'tests/testdata/q4.html',
+        '/foobar/questions/5': 'tests/testdata/q5.html',
+        '/foobar/questions/6': 'tests/testdata/q6.html'
     }
 
     filename = paths_dict.get(request.path)
-
+    host_url = request.headers.get('host')
     stack_overflow_resp = None
     with open(filename, 'r') as f:
         stack_overflow_resp = f.read()
+        stack_overflow_resp = stack_overflow_resp.replace(
+            'url', f'http://{host_url}/foobar')
     return stack_overflow_resp
 
 @pytest.mark.asyncio
 async def test_crawler(httpserver: HTTPServer):
     httpserver.expect_request("/foobar/root").respond_with_handler(so_handeler)
-    httpserver.expect_request("/foobar/questions/q1").respond_with_handler(so_handeler)
-    httpserver.expect_request("/foobar/questions/q2").respond_with_handler(so_handeler)
-    httpserver.expect_request("/foobar/questions/q3").respond_with_handler(so_handeler)
-    httpserver.expect_request("/foobar/questions/q4").respond_with_handler(so_handeler)
-    httpserver.expect_request("/foobar/questions/q5").respond_with_handler(so_handeler)
-    httpserver.expect_request("/foobar/questions/q6").respond_with_handler(so_handeler)
+    httpserver.expect_request("/foobar/questions/1").respond_with_handler(so_handeler)
+    httpserver.expect_request("/foobar/questions/2").respond_with_handler(so_handeler)
+    httpserver.expect_request("/foobar/questions/3").respond_with_handler(so_handeler)
+    httpserver.expect_request("/foobar/questions/4").respond_with_handler(so_handeler)
+    httpserver.expect_request("/foobar/questions/5").respond_with_handler(so_handeler)
+    httpserver.expect_request("/foobar/questions/6").respond_with_handler(so_handeler)
     so_url = httpserver.url_for("/foobar")
-    crawler.stack_overflow_url = so_url
-    crl = Crawler(max_depth=3)
+    crl = Crawler.create(max_depth=3, stackoverflow_url=so_url)
 
     lnk_html = []
 
@@ -50,16 +52,19 @@ async def test_crawler(httpserver: HTTPServer):
     lnk_html_dct = {link: html for link, html in lnk_html}
 
     assert 'title root' in lnk_html_dct[so_url + '/root']
-    assert 'title q1' in lnk_html_dct[so_url + '/questions/q1']
-    assert 'title q2' in lnk_html_dct[so_url + '/questions/q2']
-    assert 'title q3' in lnk_html_dct[so_url + '/questions/q3']
-    assert 'title q4' in lnk_html_dct[so_url + '/questions/q4']
-    assert 'title q5' in lnk_html_dct[so_url + '/questions/q5']
+    assert 'title q1' in lnk_html_dct[so_url + '/questions/1']
+    assert 'title q2' in lnk_html_dct[so_url + '/questions/2']
+    assert 'title q3' in lnk_html_dct[so_url + '/questions/3']
+    assert 'title q4' in lnk_html_dct[so_url + '/questions/4']
+    assert 'title q5' in lnk_html_dct[so_url + '/questions/5']
 
 def test_get_question_links():
     with open('tests/testdata/so.html', 'r', encoding='utf-8') as f:
         stack_overflow_resp = f.read()
-    links = get_question_links(stack_overflow_resp)
+    crl = Crawler.create(
+        max_depth=3, 
+        stackoverflow_url='https://stackoverflow.com')
+    links = crl.get_question_links(stack_overflow_resp)
     assert links == [
     'https://stackoverflow.com/questions/70995419/how-to-mock-an-async-instance-method-of-a-patched-class/70995584#',
     'https://stackoverflow.com/questions/70995419/how-to-mock-an-async-instance-method-of-a-patched-class/70995584#',

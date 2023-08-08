@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/find_best_answer', methods=['POST'])
 async def find_best_answer():
-    crl = Crawler(max_depth=2)
+    crl = Crawler.create(max_depth=3, stackoverflow_url='https://stackoverflow.com')
 
     link = request.json['link']
     links = []

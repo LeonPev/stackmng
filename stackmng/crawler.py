@@ -4,8 +4,14 @@ import re
 
 
 class Crawler:
-    def __init__(self, max_depth):
+    @classmethod
+    def create(cls, max_depth, stackoverflow_url):
+        regex = re.compile(r'^' + stackoverflow_url + '/questions/\d+')
+        return cls(max_depth=max_depth, regex_q_url=regex)
+
+    def __init__(self, max_depth, regex_q_url):
         self.max_depth = max_depth
+        self.regex_q_url = regex_q_url
 
     async def walk(self, root_link):
         depth = 0
@@ -15,32 +21,31 @@ class Crawler:
             current_links = set()
             current_links = current_links.union(next_links)
             for link in current_links:
-                html = await fetch_html(link)
+                html = await self.fetch_html(link)
                 yield link, html
-                next_links.update(get_question_links(html))
+                next_links.update(self.get_question_links(html))
             next_links = next_links - history
             history = history.union(next_links)
             depth += 1
 
-async def fetch_html(link):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(link) as response:
-            return await response.text()
+    async def fetch_html(self, link):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(link) as response:
+                return await response.text()
 
-regex_question = re.compile(r'^https://stackoverflow.com/questions/\d+')
-def get_question_links(html):
-    soup = BeautifulSoup(html, 'html.parser')
-    links = []
-    for link in soup.find_all('a'):
-        q_link = link.get('href')
-        if q_link and regex_question.match(q_link):
-            links.append(q_link)
-    return links
+    def get_question_links(self, html):
+        soup = BeautifulSoup(html, 'html.parser')
+        links = []
+        for link in soup.find_all('a'):
+            q_link = link.get('href')
+            if q_link and self.regex_q_url.match(q_link):
+                links.append(q_link)
+        return links
 
-def get_answers(html):
-    soup = BeautifulSoup(html, 'html.parser')
-    answers = []
-    for answer in soup.find_all('div', class_='s-prose js-post-body'):
-        answers.append(answer)
-    return answers
+    def get_answers(html):
+        soup = BeautifulSoup(html, 'html.parser')
+        answers = []
+        for answer in soup.find_all('div', class_='s-prose js-post-body'):
+            answers.append(answer)
+        return answers
 
