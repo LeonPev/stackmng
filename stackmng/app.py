@@ -1,15 +1,15 @@
 from flask import Flask, request
 from stackmng.crawler import Crawler
 
-crl = Crawler(max_depth=2)
 app = Flask(__name__)
-
 
 @app.route('/find_best_answer', methods=['POST'])
 async def find_best_answer():
+    crl = Crawler(max_depth=2)
+
     link = request.json['link']
     links = []
-    for link in crl.walk():
+    async for link, html in crl.walk(link):
         links.append(link)
         
     return {
