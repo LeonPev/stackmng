@@ -2,8 +2,6 @@ import aiohttp
 from bs4 import BeautifulSoup
 
 
-stack_overflow_url = "https://stackoverflow.com"
-
 class Crawler:
     def __init__(self, max_depth):
         self.max_depth = max_depth
@@ -33,8 +31,8 @@ def get_question_links(html):
     links = []
     for link in soup.find_all('a'):
         q_link = link.get('href')
-        if q_link and q_link.startswith('/questions/'):
-            links.append(stack_overflow_url + q_link)
+        if q_link and q_link.startswith('https://stackoverflow.com/questions/'):
+            links.append(q_link)
     return links
 
 def get_answers(html):
