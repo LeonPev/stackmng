@@ -17,22 +17,22 @@ async def fetch_html(link):
     async with aiohttp.ClientSession() as session:
         async with session.get(link) as response:
             return await response.text()
-        
+
 class Crawler:
     def __init__(self, max_depth):
         self.max_depth = max_depth
 
     async def walk(self, root_link):
-        links = [root_link]
         depth = 0
-        while links and depth <= self.max_depth:
-            next_links = []
-            for link in links:
+        history = {root_link}
+        next_links = {root_link}
+        while next_links and depth <= self.max_depth:
+            current_links = set()
+            current_links = current_links.union(next_links)
+            for link in current_links:
                 html = await fetch_html(link)
                 yield link, html
-                next_links.extend(get_question_links(html))
-            links = next_links
+                next_links.update(get_question_links(html))
+            next_links = next_links - history
+            history = history.union(next_links)
             depth += 1
-        
-        
-        
