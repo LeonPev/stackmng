@@ -78,8 +78,6 @@ def test_get_question_links():
     'https://stackoverflow.com/questions/70995419/how-to-mock-an-async-instance-method-of-a-patched-class/70995584#',
     'https://stackoverflow.com/questions/70995419/how-to-mock-an-async-instance-method-of-a-patched-class/70995584#',
     'https://stackoverflow.com/questions/70995419/how-to-mock-an-async-instance-method-of-a-patched-class/70995584#',
-    'https://stackoverflow.com/questions/tagged/python-asyncio',
-    'https://stackoverflow.com/questions/tagged/python-unittest',
     'https://stackoverflow.com/questions/42388864/mock-a-method-of-already-instantiated-object?rq=3',
     'https://stackoverflow.com/questions/43003380/how-to-mock-async-with-statements?rq=3',
     'https://stackoverflow.com/questions/44004302/python-mock-patch-a-coroutine-function-within-another-function-using-pytest?rq=3',

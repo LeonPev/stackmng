@@ -1,5 +1,6 @@
 import aiohttp
 from bs4 import BeautifulSoup
+import re
 
 
 class Crawler:
@@ -26,12 +27,13 @@ async def fetch_html(link):
         async with session.get(link) as response:
             return await response.text()
 
+regex_question = re.compile(r'^https://stackoverflow.com/questions/\d+')
 def get_question_links(html):
     soup = BeautifulSoup(html, 'html.parser')
     links = []
     for link in soup.find_all('a'):
         q_link = link.get('href')
-        if q_link and q_link.startswith('https://stackoverflow.com/questions/'):
+        if q_link and regex_question.match(q_link):
             links.append(q_link)
     return links
 
